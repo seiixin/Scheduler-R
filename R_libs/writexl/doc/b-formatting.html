@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Formatting cells</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Formatting cells</h1>
+
+
+
+<p>One kind of object describes appearance everywhere in writexl: an
+<code>xl_format</code>. The same object styles a cell, a whole column, a
+chart series or a conditional rule, so there is one vocabulary to learn
+rather than five.</p>
+<div id="building-a-format" class="section level2">
+<h2>Building a format</h2>
+<p>Six group constructors, each covering one family of Excel properties.
+Every argument defaults to unset, so you name only what you want to
+change:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">xl_font</span>(<span class="at">bold =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">&quot;navy&quot;</span>, <span class="at">size =</span> <span class="dv">12</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#&gt; &lt;xl_format&gt;</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt;   font: size=12, color=128, bold=TRUE</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;#FFF2CC&quot;</span>)</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; &lt;xl_format&gt;</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;   fill: background=16773836, pattern=solid</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="fu">xl_border</span>(<span class="at">all =</span> <span class="st">&quot;thin&quot;</span>, <span class="at">color =</span> <span class="st">&quot;gray&quot;</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co">#&gt; &lt;xl_format&gt;</span></span>
+<span id="cb1-9"><a href="#cb1-9" tabindex="-1"></a><span class="co">#&gt;   border: left=thin, right=thin, top=thin, bottom=thin, left_color=12500670, right_color=12500670, top_color=12500670, bottom_color=12500670</span></span>
+<span id="cb1-10"><a href="#cb1-10" tabindex="-1"></a><span class="fu">xl_align</span>(<span class="at">horizontal =</span> <span class="st">&quot;center&quot;</span>, <span class="at">vertical =</span> <span class="st">&quot;top&quot;</span>, <span class="at">wrap =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" tabindex="-1"></a><span class="co">#&gt; &lt;xl_format&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" tabindex="-1"></a><span class="co">#&gt;   align: horizontal=center, vertical=top, wrap=TRUE</span></span>
+<span id="cb1-13"><a href="#cb1-13" tabindex="-1"></a><span class="fu">xl_num_format</span>(<span class="st">&quot;#,##0.00&quot;</span>)</span>
+<span id="cb1-14"><a href="#cb1-14" tabindex="-1"></a><span class="co">#&gt; &lt;xl_format&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" tabindex="-1"></a><span class="co">#&gt;   num_format: format=#,##0.00</span></span>
+<span id="cb1-16"><a href="#cb1-16" tabindex="-1"></a><span class="fu">xl_protection</span>(<span class="at">locked =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-17"><a href="#cb1-17" tabindex="-1"></a><span class="co">#&gt; &lt;xl_format&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" tabindex="-1"></a><span class="co">#&gt;   protection: locked=FALSE</span></span></code></pre></div>
+<p>Colours accept R colour names, hex strings or integers, via
+<code>xl_color()</code>.</p>
+<p>Each constructor already returns a complete format, so one can be
+used alone. Combine them with <code>+</code>, which merges
+<strong>property by property</strong> — later values win, but nothing
+you did not touch is lost:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>money <span class="ot">&lt;-</span> <span class="fu">xl_num_format</span>(<span class="st">&quot;$#,##0.00&quot;</span>) <span class="sc">+</span> <span class="fu">xl_font</span>(<span class="at">color =</span> <span class="st">&quot;darkgreen&quot;</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>money <span class="sc">+</span> <span class="fu">xl_font</span>(<span class="at">bold =</span> <span class="cn">TRUE</span>)     <span class="co"># still green, now bold</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; &lt;xl_format&gt;</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;   num_format: format=$#,##0.00</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   font: color=25600, bold=TRUE</span></span></code></pre></div>
+</div>
+<div id="applying-it-to-cells" class="section level2">
+<h2>Applying it to cells</h2>
+<p><code>xl_cell_general()</code> attaches a format to values. One
+format covers the column; a list gives a format per cell:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">item =</span> <span class="fu">c</span>(<span class="st">&quot;Widget&quot;</span>, <span class="st">&quot;Gadget&quot;</span>, <span class="st">&quot;Gizmo&quot;</span>))</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>df<span class="sc">$</span>price <span class="ot">&lt;-</span> <span class="fu">xl_cell_general</span>(<span class="at">value =</span> <span class="fu">c</span>(<span class="fl">1234.5</span>, <span class="fl">67.25</span>, <span class="dv">890</span>), <span class="at">format =</span> money)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>df<span class="sc">$</span>flag  <span class="ot">&lt;-</span> <span class="fu">xl_cell_general</span>(</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>  <span class="at">value  =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="sc">-</span><span class="dv">5</span>, <span class="dv">3</span>),</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>  <span class="at">format =</span> <span class="fu">list</span>(<span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;lightgreen&quot;</span>),</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>                <span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;salmon&quot;</span>),</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>                <span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;lightgreen&quot;</span>)))</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">write_xlsx</span>(df, <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>))</span></code></pre></div>
+<p>A cell with a format and no value is a formatted blank — useful for
+ruling a sheet out to a fixed size:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">xl_cell_general</span>(<span class="at">value =</span> <span class="cn">NA</span>, <span class="at">format =</span> <span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;#EEEEEE&quot;</span>))</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; [xl_cell_general: 1 cell]</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;   [1] format=&lt;set&gt;</span></span></code></pre></div>
+<p>Dates and times take the workbook’s date format automatically when
+their own format sets no number format.</p>
+</div>
+<div id="applying-it-to-columns-and-rows" class="section level2">
+<h2>Applying it to columns and rows</h2>
+<p>More often you want a whole column. <code>xl_col_spec()</code> and
+<code>xl_row_spec()</code> <em>are</em> <code>xl_format</code> objects
+that additionally carry a target and some geometry, so they combine with
+<code>+</code> like any other format:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>sheet <span class="ot">&lt;-</span> <span class="fu">xl_sheet</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">date =</span> <span class="fu">as.Date</span>(<span class="st">&quot;2024-01-01&quot;</span>) <span class="sc">+</span> <span class="dv">0</span><span class="sc">:</span><span class="dv">2</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>             <span class="at">revenue =</span> <span class="fu">c</span>(<span class="fl">1000.5</span>, <span class="fl">2000.25</span>, <span class="fl">1500.75</span>)),</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">cols =</span> <span class="fu">list</span>(<span class="fu">xl_col_spec</span>(<span class="st">&quot;date&quot;</span>, <span class="at">width =</span> <span class="dv">12</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>              <span class="fu">xl_col_spec</span>(<span class="st">&quot;revenue&quot;</span>, <span class="at">width =</span> <span class="dv">14</span>, <span class="at">format =</span> money)),</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">rows =</span> <span class="fu">xl_row_spec</span>(<span class="dv">1</span>, <span class="at">height =</span> <span class="dv">20</span>))</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">write_xlsx</span>(<span class="fu">list</span>(<span class="at">Sales =</span> sheet), <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>))</span></code></pre></div>
+<p>Columns are named or indexed; rows are counted from 1 as
+<em>data</em> rows, ignoring the header.</p>
+</div>
+<div id="where-a-format-comes-from" class="section level2">
+<h2>Where a format comes from</h2>
+<p>Formats cascade. What Excel finally applies to a cell is the
+workbook’s <code>default_format</code>, merged with the column or row
+format, merged with the cell’s own. Identical results are written once,
+so styling thousands of cells stays compact. See <a href="c-worksheets-workbooks.html">Worksheets and workbooks</a> for the
+workbook end of that.</p>
+</div>
+<div id="conditional-formatting" class="section level2">
+<h2>Conditional formatting</h2>
+<p>A conditional format is a rule plus a format, applied to a range and
+evaluated by Excel rather than by you:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>scores <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">name =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;d&quot;</span>), <span class="at">score =</span> <span class="fu">c</span>(<span class="dv">35</span>, <span class="dv">78</span>, <span class="dv">55</span>, <span class="dv">92</span>))</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>sheet <span class="ot">&lt;-</span> <span class="fu">xl_sheet</span>(scores, <span class="at">conditional =</span> <span class="fu">list</span>(</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="fu">xl_cond_cell</span>(<span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;score&quot;</span>), <span class="st">&quot;cell&quot;</span>, <span class="st">&quot;&gt;=&quot;</span>, <span class="dv">80</span>,</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>               <span class="at">format =</span> <span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;lightgreen&quot;</span>)),</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>  <span class="fu">xl_cond_cell</span>(<span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;score&quot;</span>), <span class="st">&quot;cell&quot;</span>, <span class="st">&quot;&lt;&quot;</span>, <span class="dv">50</span>,</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a>               <span class="at">format =</span> <span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;salmon&quot;</span>))))</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">write_xlsx</span>(<span class="fu">list</span>(<span class="at">Scores =</span> sheet), <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>))</span></code></pre></div>
+<p>Rules are tried in order, and <code>stop_if_true</code> stops at the
+first match.</p>
+<p>The format on a rule is a <strong>differential</strong> format: it
+says what to change, not what the cell looks like. A rule setting only a
+fill leaves the font alone, which is why these are stored apart from
+ordinary cell styles.</p>
+<p><code>type</code> picks what is being tested — a cell’s value,
+whether it is in the top or bottom <em>n</em>, above or below average, a
+duplicate, blank, an error, text containing something, a date in a
+relative window, or a formula of your own.</p>
+<div id="scales-bars-and-icons" class="section level3">
+<h3>Scales, bars and icons</h3>
+<p>Three constructors cover Excel’s graphical rules, none of which needs
+a format:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">xl_cond_scale</span>(<span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;score&quot;</span>), <span class="at">colors =</span> <span class="fu">c</span>(<span class="st">&quot;salmon&quot;</span>, <span class="st">&quot;lightgreen&quot;</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; &lt;xl_conditional: scale on &lt;spec&gt;&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="fu">xl_cond_bar</span>(<span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;score&quot;</span>), <span class="at">color =</span> <span class="st">&quot;steelblue&quot;</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a><span class="co">#&gt; &lt;xl_conditional: bar on &lt;spec&gt;&gt;</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">xl_cond_icons</span>(<span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;score&quot;</span>), <span class="at">style =</span> <span class="st">&quot;3_traffic_lights&quot;</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; &lt;xl_conditional: icons on &lt;spec&gt;&gt;</span></span></code></pre></div>
+<p>A two-colour scale takes two colours, a three-colour scale three.
+Data bars draw behind the value in the cell. Icon sets take one of
+Excel’s built-in <code>style</code>s, optionally reversed or shown
+without their values.</p>
+<p>Every one of these takes its range the same way as anything else in
+writexl: <code>list(cols = )</code> against the data frame, or A1
+text.</p>
+</div>
+</div>
+<div id="what-is-elsewhere" class="section level2">
+<h2>What is elsewhere</h2>
+<ul>
+<li>The same format objects style <strong>charts</strong>, translated to
+what a chart can draw: <a href="d-charts-images.html">Charts and
+images</a>.</li>
+<li><strong>Number formats</strong> are ordinary Excel format strings —
+anything the Custom box in Excel accepts.</li>
+<li><code>xl_protection()</code> only takes effect once the sheet itself
+is protected: see <a href="c-worksheets-workbooks.html">Worksheets and
+workbooks</a>.</li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

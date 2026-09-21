@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head><title>R: Export Data Frames to Excel 'xlsx' Format</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<link rel="stylesheet" type="text/css" href="R.css">
+</head><body><div class="container">
+<h1> Export Data Frames to Excel 'xlsx' Format
+<img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]">
+</h1>
+<hr>
+<div style="text-align: center;">
+<a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]"></a>
+<a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]"></a>
+</div><h2>Documentation for package &lsquo;writexl&rsquo; version 2.0.1</h2>
+
+<ul><li><a href="../DESCRIPTION" type="text/plain; charset=utf-8">DESCRIPTION file</a></li>
+<li><a href="../doc/index.html">User guides, package vignettes and other documentation</a></li>
+<li><a href="../NEWS.md">Package NEWS</a></li>
+</ul>
+
+<h2>Help Pages</h2>
+
+
+<table style="width: 100%;">
+<tr><td style="width: 25%;"><a href="xl_format.html">+.xl_format</a></td>
+<td>Combine cell-formatting groups into a single format</td></tr>
+<tr><td style="width: 25%;"><a href="xl_cell_general.html">as.character.xl_cell_general</a></td>
+<td>General cell objects for Excel writing</td></tr>
+<tr><td style="width: 25%;"><a href="xl_rich_string.html">as.character.xl_rich_string</a></td>
+<td>A cell whose text has several formats</td></tr>
+<tr><td style="width: 25%;"><a href="is_xl_comment.html">is_xl_comment</a></td>
+<td>Test whether an object is an 'xl_comment'</td></tr>
+<tr><td style="width: 25%;"><a href="is_xl_format.html">is_xl_format</a></td>
+<td>Test whether an object is an 'xl_format'</td></tr>
+<tr><td style="width: 25%;"><a href="xl_rich_string.html">is_xl_rich_string</a></td>
+<td>A cell whose text has several formats</td></tr>
+<tr><td style="width: 25%;"><a href="writexl.html">lxw_version</a></td>
+<td>Version</td></tr>
+<tr><td style="width: 25%;"><a href="write_xlsx.html">writexl</a></td>
+<td>Export to xlsx</td></tr>
+<tr><td style="width: 25%;"><a href="write_xlsx.html">write_xlsx</a></td>
+<td>Export to xlsx</td></tr>
+<tr><td style="width: 25%;"><a href="xl_format_groups.html">xl_align</a></td>
+<td>Cell formatting groups</td></tr>
+<tr><td style="width: 25%;"><a href="xl_format_groups.html">xl_border</a></td>
+<td>Cell formatting groups</td></tr>
+<tr><td style="width: 25%;"><a href="xl_cell_general.html">xl_cell_general</a></td>
+<td>General cell objects for Excel writing</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart.html">xl_chart</a></td>
+<td>Add a chart to a worksheet</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chartsheet.html">xl_chartsheet</a></td>
+<td>A sheet holding a single chart</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_axis.html">xl_chart_axis</a></td>
+<td>An axis of a chart</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_error_bars.html">xl_chart_error_bars</a></td>
+<td>Error bars on a chart series</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_labels.html">xl_chart_label</a></td>
+<td>Data labels on a chart series</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_labels.html">xl_chart_labels</a></td>
+<td>Data labels on a chart series</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_legend.html">xl_chart_legend</a></td>
+<td>A chart's legend</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_marker.html">xl_chart_marker</a></td>
+<td>A marker on a chart series</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_series.html">xl_chart_series</a></td>
+<td>A data series within a chart</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_table.html">xl_chart_table</a></td>
+<td>The table of values under a chart</td></tr>
+<tr><td style="width: 25%;"><a href="xl_chart_trendline.html">xl_chart_trendline</a></td>
+<td>A trendline on a chart series</td></tr>
+<tr><td style="width: 25%;"><a href="xl_color.html">xl_color</a></td>
+<td>Normalize a color to a libxlsxwriter RGB integer</td></tr>
+<tr><td style="width: 25%;"><a href="xl_colrow_spec.html">xl_colrow_spec</a></td>
+<td>Column and row specifications for a worksheet</td></tr>
+<tr><td style="width: 25%;"><a href="xl_colrow_spec.html">xl_col_spec</a></td>
+<td>Column and row specifications for a worksheet</td></tr>
+<tr><td style="width: 25%;"><a href="xl_comment.html">xl_comment</a></td>
+<td>Create a cell comment</td></tr>
+<tr><td style="width: 25%;"><a href="xl_conditional.html">xl_conditional</a></td>
+<td>Format cells according to their contents</td></tr>
+<tr><td style="width: 25%;"><a href="xl_conditional.html">xl_cond_bar</a></td>
+<td>Format cells according to their contents</td></tr>
+<tr><td style="width: 25%;"><a href="xl_conditional.html">xl_cond_cell</a></td>
+<td>Format cells according to their contents</td></tr>
+<tr><td style="width: 25%;"><a href="xl_conditional.html">xl_cond_icons</a></td>
+<td>Format cells according to their contents</td></tr>
+<tr><td style="width: 25%;"><a href="xl_conditional.html">xl_cond_scale</a></td>
+<td>Format cells according to their contents</td></tr>
+<tr><td style="width: 25%;"><a href="xl_format_groups.html">xl_fill</a></td>
+<td>Cell formatting groups</td></tr>
+<tr><td style="width: 25%;"><a href="xl_filter.html">xl_filter</a></td>
+<td>Filter an autofilter column, hiding the rows that do not match</td></tr>
+<tr><td style="width: 25%;"><a href="xl_filter_keep.html">xl_filter_keep</a></td>
+<td>Which rows an Excel autofilter would leave visible</td></tr>
+<tr><td style="width: 25%;"><a href="xl_format_groups.html">xl_font</a></td>
+<td>Cell formatting groups</td></tr>
+<tr><td style="width: 25%;"><a href="xl_format.html">xl_format</a></td>
+<td>Combine cell-formatting groups into a single format</td></tr>
+<tr><td style="width: 25%;"><a href="xl_format_groups.html">xl_format_groups</a></td>
+<td>Cell formatting groups</td></tr>
+<tr><td style="width: 25%;"><a href="xl_formula.html">xl_formula</a></td>
+<td>Excel Types</td></tr>
+<tr><td style="width: 25%;"><a href="xl_formula.html">xl_hyperlink</a></td>
+<td>Excel Types</td></tr>
+<tr><td style="width: 25%;"><a href="xl_formula.html">xl_hyperlink_cell</a></td>
+<td>Excel Types</td></tr>
+<tr><td style="width: 25%;"><a href="xl_image.html">xl_image</a></td>
+<td>Insert an image into a worksheet</td></tr>
+<tr><td style="width: 25%;"><a href="xl_merge.html">xl_merge</a></td>
+<td>Merge a range of cells</td></tr>
+<tr><td style="width: 25%;"><a href="xl_format_groups.html">xl_num_format</a></td>
+<td>Cell formatting groups</td></tr>
+<tr><td style="width: 25%;"><a href="xl_outline.html">xl_outline</a></td>
+<td>Control how outline (grouping) symbols are drawn</td></tr>
+<tr><td style="width: 25%;"><a href="xl_page_setup.html">xl_page_setup</a></td>
+<td>How a worksheet prints</td></tr>
+<tr><td style="width: 25%;"><a href="xl_properties.html">xl_properties</a></td>
+<td>Workbook properties, defaults, and metadata</td></tr>
+<tr><td style="width: 25%;"><a href="xl_format_groups.html">xl_protection</a></td>
+<td>Cell formatting groups</td></tr>
+<tr><td style="width: 25%;"><a href="xl_rich_run.html">xl_rich_run</a></td>
+<td>One run of a rich (multi-format) string</td></tr>
+<tr><td style="width: 25%;"><a href="xl_rich_string.html">xl_rich_string</a></td>
+<td>A cell whose text has several formats</td></tr>
+<tr><td style="width: 25%;"><a href="xl_colrow_spec.html">xl_row_spec</a></td>
+<td>Column and row specifications for a worksheet</td></tr>
+<tr><td style="width: 25%;"><a href="xl_sheet.html">xl_sheet</a></td>
+<td>A worksheet with formatting and layout options</td></tr>
+<tr><td style="width: 25%;"><a href="xl_sheet_view.html">xl_sheet_view</a></td>
+<td>How a worksheet appears when it opens</td></tr>
+<tr><td style="width: 25%;"><a href="xl_table.html">xl_table</a></td>
+<td>Add a worksheet table</td></tr>
+<tr><td style="width: 25%;"><a href="xl_table_column.html">xl_table_column</a></td>
+<td>Describe a column of a worksheet table</td></tr>
+<tr><td style="width: 25%;"><a href="xl_validation.html">xl_validation</a></td>
+<td>Restrict what can be typed into a range</td></tr>
+<tr><td style="width: 25%;"><a href="xl_workbook.html">xl_workbook</a></td>
+<td>A workbook: sheets plus workbook-level properties</td></tr>
+</table>
+</div></body></html>

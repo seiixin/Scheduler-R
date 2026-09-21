@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Worksheets and workbooks</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Worksheets and workbooks</h1>
+
+
+
+<p><code>xl_sheet()</code> wraps a data frame with everything that is
+true of the sheet rather than of a cell. <code>xl_workbook()</code> does
+the same one level up.</p>
+<div id="the-sheet" class="section level2">
+<h2>The sheet</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>sheet <span class="ot">&lt;-</span> <span class="fu">xl_sheet</span>(</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>  <span class="fu">data.frame</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="at">note =</span> <span class="fu">c</span>(<span class="st">&quot;a&quot;</span>, <span class="st">&quot;b&quot;</span>, <span class="st">&quot;c&quot;</span>)),</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>  <span class="at">cols      =</span> <span class="fu">xl_col_spec</span>(<span class="st">&quot;note&quot;</span>, <span class="at">width =</span> <span class="dv">30</span>),</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>  <span class="at">freeze    =</span> <span class="st">&quot;A2&quot;</span>,          <span class="co"># keep the header row visible</span></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>  <span class="at">tab_color =</span> <span class="st">&quot;steelblue&quot;</span>,</span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a>  <span class="at">zoom      =</span> <span class="dv">120</span>,</span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a>  <span class="at">gridlines =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">write_xlsx</span>(<span class="fu">list</span>(<span class="at">Notes =</span> sheet), <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>))</span></code></pre></div>
+<p><code>auto_colwidth = TRUE</code> sizes every column to its contents.
+The xlsx format has no true AutoFit, so this is a character-count
+estimate; columns given an explicit width are left alone.</p>
+<p>Widths and heights can be given in <strong>pixels</strong> instead of
+Excel’s character units and points, which is easier to reason about when
+sizing a column around an image:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">xl_col_spec</span>(<span class="st">&quot;thumbnail&quot;</span>, <span class="at">width_pixels =</span> <span class="dv">100</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; &lt;xl_col_spec&gt;</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt;   target: kind=col, index=thumbnail </span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt;   geometry: width=13.57143</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">xl_row_spec</span>(<span class="dv">1</span>, <span class="at">height_pixels =</span> <span class="dv">40</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; &lt;xl_row_spec&gt;</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;   target: kind=row, index=1 </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;   geometry: height=30</span></span></code></pre></div>
+<p>Excel stores the character units, so the value is converted on the
+way in — a column set to 100 pixels reads back as 13.57 units and
+renders at 100 pixels again.</p>
+<div id="grouping-and-outlines" class="section level3">
+<h3>Grouping and outlines</h3>
+<p><code>level</code> puts columns or rows into an outline group, which
+Excel draws with the +/- controls that collapse it.
+<code>xl_outline()</code> changes how those controls are <em>drawn</em>
+— never which rows are grouped — and its defaults already match
+Excel’s:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">xl_sheet</span>(<span class="fu">data.frame</span>(<span class="at">q1 =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>, <span class="at">q2 =</span> <span class="dv">3</span><span class="sc">:</span><span class="dv">4</span>, <span class="at">total =</span> <span class="dv">4</span><span class="sc">:</span><span class="dv">5</span>),</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>         <span class="at">cols    =</span> <span class="fu">xl_col_spec</span>(<span class="fu">c</span>(<span class="st">&quot;q1&quot;</span>, <span class="st">&quot;q2&quot;</span>), <span class="at">level =</span> <span class="dv">1</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>         <span class="at">outline =</span> <span class="fu">xl_outline</span>(<span class="at">symbols_right =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; &lt;xl_sheet: 2 rows x 3 cols&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt;   column specs: 1</span></span></code></pre></div>
+</div>
+<div id="protection" class="section level3">
+<h3>Protection</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">xl_sheet</span>(<span class="fu">data.frame</span>(<span class="at">id =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>),</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>         <span class="at">protect =</span> <span class="fu">list</span>(<span class="at">password =</span> <span class="st">&quot;secret&quot;</span>, <span class="at">sort =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; &lt;xl_sheet: 3 rows x 1 cols&gt;</span></span></code></pre></div>
+<p><code>protect = TRUE</code> locks everything; a list allows named
+actions through. Cell locking set with <code>xl_protection()</code> only
+takes effect once the sheet is protected, and
+<code>locked = FALSE</code> is how a cell is left editable on a
+protected sheet.</p>
+</div>
+<div id="silencing-excels-error-indicators" class="section level3">
+<h3>Silencing Excel’s error indicators</h3>
+<p>Excel puts a green triangle in cells it thinks are wrong, most often
+a number deliberately stored as text:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">xl_sheet</span>(<span class="fu">data.frame</span>(<span class="at">zip =</span> <span class="fu">c</span>(<span class="st">&quot;01234&quot;</span>, <span class="st">&quot;02138&quot;</span>)),</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>         <span class="at">ignore_errors =</span> <span class="fu">list</span>(<span class="at">number_stored_as_text =</span> <span class="st">&quot;A2:A3&quot;</span>))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; &lt;xl_sheet: 2 rows x 1 cols&gt;</span></span></code></pre></div>
+<p>Nine error types can be silenced, each taking a range in any spelling
+the other range arguments accept.</p>
+</div>
+</div>
+<div id="the-tab-strip-and-the-opening-view" class="section level2">
+<h2>The tab strip and the opening view</h2>
+<p><code>xl_sheet_view()</code> collects the rarely-used settings that
+would otherwise widen <code>xl_sheet()</code> past reading:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">xl_sheet</span>(<span class="fu">data.frame</span>(<span class="at">x =</span> <span class="dv">1</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>         <span class="at">view =</span> <span class="fu">xl_sheet_view</span>(<span class="at">active =</span> <span class="cn">TRUE</span>, <span class="at">selection =</span> <span class="st">&quot;B2&quot;</span>,</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                              <span class="at">hide_zero =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; &lt;xl_sheet: 1 rows x 1 cols&gt;</span></span></code></pre></div>
+<p>Which tab is active, which are selected, which are hidden, which is
+leftmost, where the sheet is scrolled to, whether zeros show,
+right-to-left column order, and split panes all live here.
+<code>freeze</code> stays on <code>xl_sheet()</code> because keeping the
+header row visible is the one worksheet option almost everyone
+wants.</p>
+<p>Excel’s rules about tabs span the whole workbook, so they are checked
+before anything is written: at most one active sheet, no
+hidden-and-active sheet, and at least one sheet visible. The error names
+the sheet at fault.</p>
+</div>
+<div id="printing" class="section level2">
+<h2>Printing</h2>
+<p><code>xl_page_setup()</code> collects everything Excel’s Page Layout
+ribbon controls. None of it affects the cells:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">xl_sheet</span>(<span class="fu">data.frame</span>(<span class="at">x =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>),</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>         <span class="at">page =</span> <span class="fu">xl_page_setup</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>           <span class="at">orientation =</span> <span class="st">&quot;landscape&quot;</span>, <span class="at">paper =</span> <span class="st">&quot;A4&quot;</span>,</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>           <span class="at">fit_to =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">0</span>),                 <span class="co"># one page wide, any number tall</span></span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>           <span class="at">center_horizontally =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a>           <span class="at">header =</span> <span class="st">&quot;&amp;LQuarterly report&amp;RPage &amp;P of &amp;N&quot;</span>,</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a>           <span class="at">repeat_rows =</span> <span class="dv">1</span>,                  <span class="co"># the header row, on every page</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a>           <span class="at">print_area =</span> <span class="st">&quot;A1:C4&quot;</span>))</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; &lt;xl_sheet: 3 rows x 1 cols&gt;</span></span></code></pre></div>
+<p>Headers and footers use Excel’s own <code>&amp;</code>-codes:
+<code>&amp;L</code>/<code>&amp;C</code>/<code>&amp;R</code> for the
+three sections, <code>&amp;P</code> and <code>&amp;N</code> for the page
+number and count, <code>&amp;D</code> for the date, <code>&amp;G</code>
+for a picture. Manual page breaks go in with <code>h_breaks</code> and
+<code>v_breaks</code>.</p>
+</div>
+<div id="the-workbook" class="section level2">
+<h2>The workbook</h2>
+<p><code>xl_workbook()</code> binds sheets to
+<code>xl_properties()</code>, which holds the document metadata and the
+formatting defaults that would otherwise be built in:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>wb <span class="ot">&lt;-</span> <span class="fu">xl_workbook</span>(</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>  <span class="fu">list</span>(<span class="at">Report =</span> <span class="fu">data.frame</span>(<span class="at">quarter =</span> <span class="fu">c</span>(<span class="st">&quot;Q1&quot;</span>, <span class="st">&quot;Q2&quot;</span>), <span class="at">sales =</span> <span class="fu">c</span>(<span class="dv">12000</span>, <span class="dv">15000</span>))),</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>  <span class="at">properties =</span> <span class="fu">xl_properties</span>(</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>    <span class="at">title   =</span> <span class="st">&quot;Quarterly Report&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="at">author  =</span> <span class="st">&quot;Finance Team&quot;</span>,</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>    <span class="at">custom  =</span> <span class="fu">list</span>(<span class="at">Project =</span> <span class="st">&quot;Alpha&quot;</span>, <span class="at">Reviewed =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>    <span class="at">header_format =</span> <span class="fu">xl_font</span>(<span class="at">bold =</span> <span class="cn">TRUE</span>, <span class="at">color =</span> <span class="st">&quot;white&quot;</span>) <span class="sc">+</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>                    <span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;navy&quot;</span>)))</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">write_xlsx</span>(wb, <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>))</span></code></pre></div>
+<p>Because the defaults are ordinary <code>xl_format</code> objects you
+can change any of them: the header row’s style, the date and datetime
+formats and their column widths, the hyperlink style, and a
+workbook-wide <code>default_format</code> beneath every cell. Custom
+properties may be text, numbers, dates or logicals.</p>
+<p>A workbook-wide <code>default_format</code> is <em>emulated</em> — it
+is merged beneath every cell — because libxlsxwriter has no native
+“Normal style” hook. The effect is the same; the file is slightly
+larger.</p>
+</div>
+<div id="memory" class="section level2">
+<h2>Memory</h2>
+<p>For a large workbook writexl can stream each row to disk as it is
+written rather than holding the whole sheet in memory. It decides per
+workbook:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">write_xlsx</span>(big, path, <span class="at">constant_memory =</span> <span class="cn">TRUE</span>)</span></code></pre></div>
+<p>Left at <code>NA</code> it turns streaming on only when the workbook
+is large enough for the saving to matter — estimated from the cell
+count, with the threshold configurable through
+<code>constant_memory_threshold</code>. Some features cannot be written
+while streaming, because they touch cells above the row being written:
+worksheet tables, multi-cell array formulas, merged ranges and embedded
+images. Those turn it off, and asking for it anyway warns rather than
+producing a half-written file.</p>
+</div>
+<div id="elsewhere" class="section level2">
+<h2>Elsewhere</h2>
+<ul>
+<li>Styling the cells themselves: <a href="b-formatting.html">Formatting
+cells</a></li>
+<li>Charts, chartsheets and pictures: <a href="d-charts-images.html">Charts and images</a></li>
+<li>Validation, filters, tables and merges: <a href="e-formulas-and-more.html">Formulas, tables and the rest</a></li>
+</ul>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

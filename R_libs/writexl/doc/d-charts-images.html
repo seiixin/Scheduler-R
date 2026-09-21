@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Charts and images</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Charts and images</h1>
+
+
+
+<div id="a-chart" class="section level2">
+<h2>A chart</h2>
+<p><code>xl_chart()</code> puts a chart on a sheet;
+<code>xl_chart_series()</code> says what it plots.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a>sheet <span class="ot">&lt;-</span> <span class="fu">xl_sheet</span>(sales,</span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>                  <span class="at">chart =</span> <span class="fu">xl_chart</span>(<span class="st">&quot;column&quot;</span>,</span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a>                                   <span class="fu">xl_chart_series</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;revenue&quot;</span>)),</span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a>                                   <span class="at">title =</span> <span class="st">&quot;Revenue by quarter&quot;</span>, <span class="at">at =</span> <span class="st">&quot;E2&quot;</span>))</span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">write_xlsx</span>(<span class="fu">list</span>(<span class="at">Sales =</span> sheet), <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>))</span></code></pre></div>
+<p>All 22 types Excel offers are available: <code>&quot;column&quot;</code>,
+<code>&quot;bar&quot;</code>, <code>&quot;line&quot;</code>, <code>&quot;pie&quot;</code>,
+<code>&quot;doughnut&quot;</code>, <code>&quot;area&quot;</code>, <code>&quot;scatter&quot;</code>,
+<code>&quot;radar&quot;</code>, and the stacked, percent-stacked, smoothed and
+marker variants.</p>
+<div id="naming-a-range" class="section level3">
+<h3>Naming a range</h3>
+<p>A series range is written either <strong>by column</strong>,
+<code>list(cols = &quot;revenue&quot;)</code>, or as <strong>A1 text</strong>,
+<code>&quot;Data!B2:B5&quot;</code>. Prefer the column form: it is checked against
+the data frame, moves with the column rather than with a letter, and
+accounts for the header row itself. <code>rows</code> narrows it, and
+<code>sheet</code> points at another sheet:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">xl_chart_series</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="at">sheet =</span> <span class="st">&quot;Sales&quot;</span>, <span class="at">cols =</span> <span class="st">&quot;revenue&quot;</span>, <span class="at">rows =</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">2</span>))</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; &lt;xl_chart_series&gt;</span></span></code></pre></div>
+<p>A range reaching past the data is an error rather than a chart with
+blanks on the end — a chart of the wrong numbers looks plausible, which
+is the worst way to be wrong.</p>
+<p>A series that plots a column is <strong>named after that column’s
+header</strong>, which is what Excel does when you chart a column along
+with its header. The header is referenced, not copied, so renaming it in
+Excel renames the series. <code>name = FALSE</code> leaves it unnamed,
+and a string is always taken literally — a series may legitimately be
+called <code>&quot;Q1!&quot;</code> — so to take a name from a cell, give a spec:
+<code>list(header = &quot;cost&quot;)</code>, or
+<code>list(rows = 1, cols = 1)</code>.</p>
+</div>
+<div id="styling" class="section level3">
+<h3>Styling</h3>
+<p>Charts reuse the format objects from <a href="b-formatting.html">Formatting cells</a>. <code>xl_border()</code>
+becomes the line, <code>xl_fill()</code> the fill or pattern,
+<code>xl_font()</code> the text:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">xl_chart</span>(<span class="st">&quot;line&quot;</span>,</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>         <span class="fu">xl_chart_series</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;revenue&quot;</span>),</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>                         <span class="at">format =</span> <span class="fu">xl_border</span>(<span class="at">all =</span> <span class="st">&quot;dashed&quot;</span>, <span class="at">color =</span> <span class="st">&quot;#4472C4&quot;</span>)),</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>         <span class="at">title =</span> <span class="st">&quot;Revenue&quot;</span>, <span class="at">title_format =</span> <span class="fu">xl_font</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">bold =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; &lt;xl_chart: line, 1 series, &quot;Revenue&quot;&gt;</span></span></code></pre></div>
+<p>Each part takes the groups it can use and <strong>refuses the rest by
+name</strong>. A series is a shape, so it takes a line and a fill but no
+font; a title is text, so it takes a font and nothing else.
+<code>xl_fill()</code> and <code>xl_border()</code> also take
+<code>transparency</code>, which charts honour and cells ignore, and
+chart lines have fewer dash styles than cell borders because a chart
+line has no width. None of this is dropped quietly.</p>
+<p><code>style</code> picks one of Excel’s 48 built-in chart styles.</p>
+</div>
+</div>
+<div id="axes" class="section level2">
+<h2>Axes</h2>
+<p><code>xl_chart_axis()</code> covers everything an axis has — the
+title and its font, tick labels with their number format, bounds, a log
+scale, tick marks and their spacing, gridlines, and the axis line
+itself:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="fu">xl_chart</span>(<span class="st">&quot;column&quot;</span>, <span class="fu">xl_chart_series</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;revenue&quot;</span>)),</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>         <span class="at">x_axis =</span> <span class="fu">xl_chart_axis</span>(<span class="at">title =</span> <span class="st">&quot;Quarter&quot;</span>, <span class="at">major_tick =</span> <span class="st">&quot;none&quot;</span>),</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>         <span class="at">y_axis =</span> <span class="fu">xl_chart_axis</span>(<span class="at">title =</span> <span class="st">&quot;Revenue&quot;</span>, <span class="at">min =</span> <span class="dv">0</span>,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>                                <span class="at">num_format =</span> <span class="st">&quot;$#,##0&quot;</span>,</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>                                <span class="at">major_gridlines_format =</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>                                  <span class="fu">xl_border</span>(<span class="at">all =</span> <span class="st">&quot;dotted&quot;</span>, <span class="at">color =</span> <span class="st">&quot;gray&quot;</span>)))</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; &lt;xl_chart: column, 1 series&gt;</span></span></code></pre></div>
+<p>There are two kinds of axis and several options belong to one of
+them. A <strong>scatter</strong> chart plots numbers against numbers, so
+both its axes are value axes; every other type has a
+<strong>category</strong> x axis and a value y axis — bar charts
+included, since Excel draws their categories up the side but does not
+rename the axes.</p>
+<table>
+<colgroup>
+<col width="50%" />
+<col width="50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>value axes</th>
+<th>category axes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>min</code>, <code>max</code>, <code>log_base</code>,
+<code>major_unit</code>, <code>minor_unit</code>,
+<code>display_units</code>, <code>display_units_visible</code></td>
+<td><code>position</code>, <code>label_align</code>,
+<code>interval_unit</code>, <code>interval_tick</code></td>
+</tr>
+</tbody>
+</table>
+<p>Setting a minimum on a category axis is accepted by Excel and then
+ignored, so writexl refuses it and names the axis that would work. Pie
+and doughnut charts have no axes at all.</p>
+</div>
+<div id="the-parts-of-a-series" class="section level2">
+<h2>The parts of a series</h2>
+<p>A series can carry a marker at each point, labels beside them, a
+trendline through them and error bars on them, and individual points can
+be styled:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">xl_chart_series</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">values       =</span> <span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;revenue&quot;</span>),</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">marker       =</span> <span class="fu">xl_chart_marker</span>(<span class="at">type =</span> <span class="st">&quot;circle&quot;</span>, <span class="at">size =</span> <span class="dv">7</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="at">labels       =</span> <span class="fu">xl_chart_labels</span>(<span class="at">num_format =</span> <span class="st">&quot;$#,##0&quot;</span>, <span class="at">position =</span> <span class="st">&quot;above&quot;</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="at">trendline    =</span> <span class="fu">xl_chart_trendline</span>(<span class="st">&quot;linear&quot;</span>, <span class="at">equation =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a>  <span class="at">y_error_bars =</span> <span class="fu">xl_chart_error_bars</span>(<span class="st">&quot;percentage&quot;</span>, <span class="dv">5</span>))</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; &lt;xl_chart_series&gt;</span></span></code></pre></div>
+<p><code>xl_chart_labels()</code> with no arguments prints each point’s
+value, which is Excel’s default. Naming any part means the label holds
+<strong>exactly</strong> those, so <code>show_percentage = TRUE</code>
+alone gives a percentage with no value beside it. <code>custom =</code>
+takes a list of <code>xl_chart_label()</code>s, one per point, so a
+single label can be renamed or removed with <code>hide = TRUE</code>.
+<code>points =</code> takes a list of formats the same way — one red
+slice, the rest untouched:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">xl_chart</span>(<span class="st">&quot;pie&quot;</span>, <span class="fu">xl_chart_series</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;revenue&quot;</span>),</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>                                <span class="at">points =</span> <span class="fu">list</span>(<span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;red&quot;</span>),</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>                                              <span class="cn">NULL</span>, <span class="cn">NULL</span>, <span class="cn">NULL</span>)))</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; &lt;xl_chart: pie, 1 series&gt;</span></span></code></pre></div>
+<p>Four more of Excel’s silent rules are checked here: which
+<strong>label positions</strong> each chart type allows, that a
+<strong>moving average</strong> has no forecast, equation or R-squared,
+that an <strong>intercept</strong> applies only to exponential, linear
+and polynomial fits, and that an <strong>automatic marker</strong> takes
+neither a size nor a format.</p>
+</div>
+<div id="the-chart-as-a-whole" class="section level2">
+<h2>The chart as a whole</h2>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">xl_chart</span>(<span class="st">&quot;column&quot;</span>, <span class="fu">xl_chart_series</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="at">cols =</span> <span class="st">&quot;revenue&quot;</span>)),</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>         <span class="at">legend     =</span> <span class="fu">xl_chart_legend</span>(<span class="at">position =</span> <span class="st">&quot;bottom&quot;</span>),</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>         <span class="at">data_table =</span> <span class="fu">xl_chart_table</span>(<span class="at">show_keys =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>         <span class="at">plot_area_format  =</span> <span class="fu">xl_fill</span>(<span class="at">background =</span> <span class="st">&quot;#F8F8F8&quot;</span>),</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>         <span class="at">chart_area_format =</span> <span class="fu">xl_border</span>(<span class="at">all =</span> <span class="st">&quot;thin&quot;</span>, <span class="at">color =</span> <span class="st">&quot;gray&quot;</span>))</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; &lt;xl_chart: column, 1 series&gt;</span></span></code></pre></div>
+<p><code>xl_chart_legend(position = &quot;none&quot;)</code> removes the legend,
+and <code>delete_series</code> leaves one series out of the key while
+still plotting it. Anything placed by hand takes a <code>layout</code>
+rather than an <code>at</code> — <code>title_layout</code>,
+<code>plot_area_layout</code>,
+<code>xl_chart_axis(title_layout =)</code> and
+<code>xl_chart_legend(layout =)</code> are fractions of the chart, where
+<code>at</code> means a cell everywhere else. <code>show_blanks</code>
+decides what an empty cell does, and <code>show_hidden_data</code> plots
+rows Excel would leave out.</p>
+<p>Six options belong to one family of chart: the doughnut
+<code>hole_size</code>, pie <code>rotation</code>,
+<code>drop_lines</code>, <code>high_low_lines</code>,
+<code>up_down_bars</code>, and the bar <code>series_gap</code> and
+<code>series_overlap</code>. Each takes <code>TRUE</code> for Excel’s
+own drawing or a format to style it, and each is refused on a type that
+has no such feature.</p>
+<p>A scatter series must have <code>categories</code> — they are its x
+axis, and libxlsxwriter crashes without them.</p>
+</div>
+<div id="a-chart-on-a-sheet-of-its-own" class="section level2">
+<h2>A chart on a sheet of its own</h2>
+<p><code>xl_chartsheet()</code> is a tab holding one chart and no
+cells:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>chart <span class="ot">&lt;-</span> <span class="fu">xl_chart</span>(<span class="st">&quot;column&quot;</span>,</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>                  <span class="fu">xl_chart_series</span>(<span class="at">values =</span> <span class="fu">list</span>(<span class="at">sheet =</span> <span class="st">&quot;Data&quot;</span>,</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>                                                <span class="at">cols =</span> <span class="st">&quot;revenue&quot;</span>),</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>                                  <span class="at">categories =</span> <span class="fu">list</span>(<span class="at">sheet =</span> <span class="st">&quot;Data&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>                                                    <span class="at">cols =</span> <span class="st">&quot;quarter&quot;</span>)),</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>                  <span class="at">title =</span> <span class="st">&quot;Revenue&quot;</span>)</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a>path <span class="ot">&lt;-</span> <span class="fu">write_xlsx</span>(<span class="fu">list</span>(<span class="at">Data =</span> sales, <span class="at">Overview =</span> <span class="fu">xl_chartsheet</span>(chart)),</span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a>                   <span class="fu">tempfile</span>(<span class="at">fileext =</span> <span class="st">&quot;.xlsx&quot;</span>))</span></code></pre></div>
+<p>Every range must name its sheet, since a chartsheet has no cells for
+<code>list(cols = )</code> to resolve against. It supports a fraction of
+what a worksheet does — of <code>xl_page_setup()</code> the orientation,
+paper, margins, header and footer; of <code>xl_sheet_view()</code> the
+four tab-state options — plus <code>tab_color</code>, <code>zoom</code>
+and <code>protect</code>. The rest is refused rather than dropped.</p>
+</div>
+<div id="images" class="section level2">
+<h2>Images</h2>
+<p><code>xl_image()</code> places a picture, anchored to a cell:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>card <span class="ot">&lt;-</span> <span class="fu">as.raster</span>(<span class="fu">matrix</span>(<span class="fu">c</span>(<span class="st">&quot;red&quot;</span>, <span class="st">&quot;blue&quot;</span>, <span class="st">&quot;green&quot;</span>, <span class="st">&quot;gold&quot;</span>), <span class="at">nrow =</span> <span class="dv">2</span>))</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">xl_sheet</span>(sales, <span class="at">image =</span> <span class="fu">xl_image</span>(card, <span class="at">at =</span> <span class="st">&quot;G2&quot;</span>, <span class="at">scale =</span> <span class="dv">20</span>))</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; &lt;xl_sheet: 4 rows x 3 cols&gt;</span></span></code></pre></div>
+<p>The image may be a <strong>file path</strong>, a <strong>raw
+vector</strong> of encoded bytes, or an <strong>in-memory
+picture</strong> — a <code>raster</code>, a colour matrix, an RGB array
+or a <code>nativeRaster</code>. Anything <code>rasterImage()</code> can
+draw can be written, so a plot never has to touch the disk; that path
+uses R’s PNG device, which is why <code>grDevices</code> is a suggested
+package.</p>
+<p>PNG, JPEG, GIF and BMP are supported, and the format is read from the
+file’s own bytes rather than its extension, so a mislabelled
+<code>.png</code> is caught rather than misfiled. <code>scale</code>,
+<code>offset</code> and <code>position</code> control size and
+placement, <code>description</code> and <code>decorative</code> set the
+alt text, and <code>url</code> makes the image a hyperlink.</p>
+<p>An image can also go in the printed header or footer, matched to a
+<code>&amp;G</code> placeholder, or be tiled behind the cells as a
+screen watermark:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">xl_page_setup</span>(<span class="at">header =</span> <span class="st">&quot;&amp;L&amp;G&quot;</span>, <span class="at">header_image =</span> <span class="fu">list</span>(<span class="at">left =</span> logo))</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="fu">xl_sheet</span>(sales, <span class="at">background_image =</span> logo)</span></code></pre></div>
+<p><code>embed = TRUE</code> puts the image <em>inside</em> a cell, the
+Excel 365 “place in cell” feature; older Excel shows
+<code>#VALUE!</code> in its place.</p>
+<p>Two combinations are refused, because libxlsxwriter miscounts them
+and Excel repairs the file: an embedded image alongside any other image,
+and a header/footer or background image on a sheet <em>before</em> one
+with a floating image or a chart. Both errors name the sheets and the
+arrangement that works.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

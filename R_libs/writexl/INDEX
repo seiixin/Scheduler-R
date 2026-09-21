@@ -1,0 +1,43 @@
+is_xl_comment           Test whether an object is an 'xl_comment'
+is_xl_format            Test whether an object is an 'xl_format'
+lxw_version             Version
+write_xlsx              Export to xlsx
+xl_cell_general         General cell objects for Excel writing
+xl_chart                Add a chart to a worksheet
+xl_chart_axis           An axis of a chart
+xl_chart_error_bars     Error bars on a chart series
+xl_chart_labels         Data labels on a chart series
+xl_chart_legend         A chart's legend
+xl_chart_marker         A marker on a chart series
+xl_chart_series         A data series within a chart
+xl_chart_table          The table of values under a chart
+xl_chart_trendline      A trendline on a chart series
+xl_chartsheet           A sheet holding a single chart
+xl_color                Normalize a color to a libxlsxwriter RGB
+                        integer
+xl_colrow_spec          Column and row specifications for a worksheet
+xl_comment              Create a cell comment
+xl_conditional          Format cells according to their contents
+xl_filter               Filter an autofilter column, hiding the rows
+                        that do not match
+xl_filter_keep          Which rows an Excel autofilter would leave
+                        visible
+xl_format               Combine cell-formatting groups into a single
+                        format
+xl_format_groups        Cell formatting groups
+xl_formula              Excel Types
+xl_image                Insert an image into a worksheet
+xl_merge                Merge a range of cells
+xl_outline              Control how outline (grouping) symbols are
+                        drawn
+xl_page_setup           How a worksheet prints
+xl_properties           Workbook properties, defaults, and metadata
+xl_rich_run             One run of a rich (multi-format) string
+xl_rich_string          A cell whose text has several formats
+xl_sheet                A worksheet with formatting and layout options
+xl_sheet_view           How a worksheet appears when it opens
+xl_table                Add a worksheet table
+xl_table_column         Describe a column of a worksheet table
+xl_validation           Restrict what can be typed into a range
+xl_workbook             A workbook: sheets plus workbook-level
+                        properties
