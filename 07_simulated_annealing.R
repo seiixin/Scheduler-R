@@ -32,6 +32,10 @@
 source("04_fitness_calculation.R")
 require_packages(c("dplyr", "tidyr"))
 
+# construct_schedule_from_preferences() is defined in r_scheduler_export_helpers.R
+# which is sourced by the entry point (sa_scheduler.R) after this file.
+# It is available at runtime when run_SA() is called.
+
 rebuild_dg_from_ids <- function(node_ids, nodes, adjacency, data) {
   dg <- DynamicGraph$new(nodes, adjacency, data)
   for (nid in node_ids) {
@@ -51,57 +55,35 @@ fitness_from_ids <- function(node_ids, nodes, adjacency, data) {
 
 generate_initial_solution <- function(nodes, adjacency, data, base_weights = NULL,
                                       return_graph = FALSE) {
-  if (is.null(base_weights)) base_weights <- precompute_node_weights(nodes, data)
-  noise <- rnorm(length(base_weights), mean = 0, sd = sd(base_weights) * 0.5 + 1e-6)
-  noisy_weights <- base_weights + noise
+  # Build the initial solution by assigning the highest-weight node per task,
+  # then resolving conflicts via the decoder.  We build the preference vector
+  # directly here (fast) without going through the full build_task_index() call
+  # that construct_schedule_from_preferences uses internally.
+  node_wts <- if (!is.null(base_weights))
+    as.numeric(base_weights)
+  else
+    as.numeric(precompute_node_weights(nodes, data))
 
-  group_key <- paste(nodes$offering_id, nodes$meeting_idx, sep = "::")
-  group_candidates <- split(nodes$node_id, group_key)
-  remaining <- names(group_candidates)
-  active_mask <- rep(TRUE, nrow(nodes))
-  selected_ids <- integer(0)
-  while (length(remaining)) {
-    active_counts <- vapply(group_candidates[remaining], function(ids) {
-      sum(active_mask[ids])
-    }, integer(1))
-    feasible <- active_counts > 0L
-    if (!any(feasible)) break
-    selected_group <- remaining[which.min(replace(active_counts, !feasible, .Machine$integer.max))]
-    candidate_ids <- group_candidates[[selected_group]]
-    candidate_ids <- candidate_ids[active_mask[candidate_ids]]
-    candidate_ids <- candidate_ids[order(noisy_weights[candidate_ids], decreasing = TRUE)]
-    for (node_id in candidate_ids) {
-      selected_ids <- c(selected_ids, node_id)
-      active_mask[which(adjacency[node_id, ] == 0)] <- FALSE
-      active_mask[node_id] <- FALSE
-      break
-    }
-    remaining <- remaining[remaining != selected_group]
+  noise <- rnorm(length(node_wts), mean = 0,
+                 sd = pmax(sd(node_wts) * 0.5, 1e-6))
+  noisy <- node_wts + noise
+
+  # Group nodes by "offering_id::meeting_idx" — the key format expected by
+  # construct_schedule_from_preferences (matches make_r_schedule_tasks output).
+  # For merged units, the representative offering_id in the node is what
+  # the decoder will look up — this is correct because make_r_schedule_tasks
+  # iterates data$offerings which contains one row per offering (not per unit).
+  task_key_vec <- paste0(nodes$offering_id, "::", nodes$meeting_idx)
+  task_keys    <- unique(task_key_vec)
+
+  prefs <- integer(length(task_keys))
+  names(prefs) <- task_keys
+  for (tk in task_keys) {
+    idx       <- which(task_key_vec == tk)
+    prefs[tk] <- nodes$node_id[idx[which.max(noisy[idx])]]
   }
-  dg <- DynamicGraph$new(nodes, adjacency, data)
-  dg$active_mask <- active_mask
-  dg$selected_ids <- selected_ids
-  selected_rows <- nodes[match(selected_ids, nodes$node_id), , drop = FALSE]
-  dg$selected_nodes_df <- selected_rows
-  coverage <- as.list(rep(0L, nrow(data$offerings)))
-  names(coverage) <- as.character(data$offerings$offering_id)
-  has_member <- "member_offering_ids" %in% names(selected_rows) && is.list(selected_rows$member_offering_ids)
-  for (sr_idx in seq_len(nrow(selected_rows))) {
-    if (has_member) {
-      member_oids <- selected_rows$member_offering_ids[[sr_idx]]
-      if (length(member_oids) > 0L) {
-        for (oid in member_oids) {
-          key <- as.character(oid)
-          if (!is.null(coverage[[key]])) coverage[[key]] <- coverage[[key]] + 1L
-        }
-        next
-      }
-    }
-    oid <- selected_rows$offering_id[sr_idx]
-    key <- as.character(oid)
-    if (!is.null(coverage[[key]])) coverage[[key]] <- coverage[[key]] + 1L
-  }
-  dg$offerings_coverage <- coverage
+
+  dg <- construct_schedule_from_preferences(prefs, nodes, adjacency, data)
   if (return_graph) dg else dg$selected_ids
 }
 

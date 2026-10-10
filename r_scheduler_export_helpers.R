@@ -267,6 +267,34 @@ make_r_schedule_tasks <- function(data) {
   do.call(rbind, rows)
 }
 
+# ── build_task_index ──────────────────────────────────────────────────────────
+# Shared by GA (05_genetic_algorithm.R) and ACO (06_ant_colony.R).
+# Returns a data frame with one row per (offering, meeting) task plus the pool
+# of candidate node_ids available for each task from the nodes table.
+build_task_index <- function(nodes, data) {
+  mg_map <- setNames(data$offerings$merge_group_id, data$offerings$offering_id)
+
+  unit_key_for <- function(oid, midx) {
+    mg <- mg_map[[as.character(oid)]]
+    base <- if (!is.null(mg) && !is.na(mg)) paste0("M|", mg) else paste0("O|", oid)
+    paste0(base, "::", midx)
+  }
+
+  tasks <- make_r_schedule_tasks(data)
+  tasks$.task_key  <- paste0(tasks$offering_id, "::", tasks$meeting_idx)
+  tasks$.unit_key  <- mapply(unit_key_for, tasks$offering_id, tasks$meeting_idx,
+                             SIMPLIFY = TRUE)
+
+  node_uk_key <- paste0(nodes$unit_key, "::", nodes$meeting_idx)
+
+  tasks$.node_pool    <- lapply(tasks$.unit_key, function(uk)
+    as.integer(nodes$node_id[node_uk_key == uk]))
+  tasks$.n_candidates <- vapply(tasks$.node_pool, length, integer(1))
+
+  # Drop tasks with zero candidates — they cannot be scheduled.
+  tasks[tasks$.n_candidates > 0L, , drop = FALSE]
+}
+
 is_r_faculty_available <- function(faculty_num, day, hours, faculty_time) {
   day_num <- match(day, c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday"))
   windows <- faculty_time[faculty_time$Faculty == faculty_num &
@@ -634,6 +662,115 @@ construct_verified_r_schedule <- function(data, seed, max_choices = 100L) {
     }))
   }
   do.call(rbind, rows)
+}
+
+# ─────────────────────────────────────────────────────────────────────────────
+# construct_schedule_from_preferences()
+#
+# THE SHARED DECODER used by both GA and ACO.
+#
+# Converts a task-preference vector (one preferred node_id per scheduling
+# task) into a complete, conflict-free schedule data frame.
+#
+# How it works per the client flow docs:
+#   1. For each (offering, meeting_idx) task in priority order:
+#       a. Try the preferred node first (first-choice placement).
+#       b. If the preferred node is already taken or conflicts with an
+#          existing placement, iterate through alternative nodes for the
+#          same task in decreasing weight order until one fits.
+#   2. Fitness-facing output is a DynamicGraph so calculate_fitness() can
+#      score it directly — same as GA/ACO used to do, but now driven by
+#      preferences instead of a random permutation.
+#
+# Arguments:
+#   preferences  — named integer vector: names are "offering_id::meeting_idx",
+#                  values are the preferred node_id for that task.
+#   nodes        — the full candidate nodes data frame from build_candidate_nodes().
+#   adjacency    — the full adjacency matrix.
+#   data         — the scheduling data list from read_tupc_data().
+#
+# Returns: a DynamicGraph with selected_ids populated, ready for
+#          calculate_fitness() or get_expanded_selected_nodes().
+# ─────────────────────────────────────────────────────────────────────────────
+construct_schedule_from_preferences <- function(preferences, nodes, adjacency, data) {
+  dg <- DynamicGraph$new(nodes, adjacency, data)
+
+  tasks <- make_r_schedule_tasks(data)
+
+  mg_map <- setNames(data$offerings$merge_group_id, data$offerings$offering_id)
+  unit_key_for <- function(oid, midx) {
+    mg <- mg_map[[as.character(oid)]]
+    base <- if (!is.null(mg) && !is.na(mg)) paste0("M|", mg) else paste0("O|", oid)
+    paste0(base, "::", midx)
+  }
+
+  node_unit_midx_key <- paste0(nodes$unit_key, "::", nodes$meeting_idx)
+
+  tasks$.unit_key_full <- mapply(unit_key_for,
+                                 tasks$offering_id, tasks$meeting_idx,
+                                 SIMPLIFY = TRUE)
+
+  # Pre-build pool lookup as a list keyed by unit_key_full — avoids
+  # O(n_tasks × n_nodes) string scan on every call.
+  pool_lookup <- split(seq_len(nrow(nodes)),
+                       node_unit_midx_key)
+
+  tasks$.n_candidates <- vapply(tasks$.unit_key_full,
+                                function(k) length(pool_lookup[[k]]),
+                                integer(1))
+  tasks$.priority <- tasks$duration * 10000L + tasks$.n_candidates
+  task_order      <- order(-tasks$.priority)
+  tasks_ordered   <- tasks[task_order, , drop = FALSE]
+
+  # Use environment for O(1) placed_unit_keys lookup instead of growing vector
+  placed_env <- new.env(parent = emptyenv())
+
+  node_wts <- nodes$base_weight
+
+  for (ti in seq_len(nrow(tasks_ordered))) {
+    t    <- tasks_ordered[ti, , drop = FALSE]
+    oid  <- t$offering_id
+    midx <- t$meeting_idx
+    uk   <- t$.unit_key_full
+
+    if (exists(uk, placed_env, inherits = FALSE)) next
+
+    pool_idx <- pool_lookup[[uk]]
+    if (is.null(pool_idx) || length(pool_idx) == 0L) next
+    pool_ids <- nodes$node_id[pool_idx]
+
+    pref_key     <- paste0(oid, "::", midx)
+    preferred_id <- preferences[pref_key]
+
+    if (!is.na(preferred_id) && preferred_id %in% pool_ids) {
+      alt_ids   <- pool_ids[pool_ids != preferred_id]
+      alt_wts   <- node_wts[match(alt_ids, nodes$node_id)]
+      alt_ids   <- alt_ids[order(-alt_wts)]
+      trial_ids <- c(preferred_id, alt_ids)
+    } else {
+      wts       <- node_wts[match(pool_ids, nodes$node_id)]
+      trial_ids <- pool_ids[order(-wts)]
+    }
+
+    for (nid in trial_ids) {
+      if (!dg$active_mask[nid]) next
+      if (dg$select_node(nid)) {
+        assign(uk, TRUE, placed_env)
+        break
+      }
+    }
+  }
+
+  dg
+}
+
+# ── Helper to build preferences from a node-per-task vector for fitness eval ─
+# Evaluates a chromosome (named integer vector: task_key → node_id) by
+# running the preference decoder and returning calculate_fitness().
+fitness_from_preferences <- function(preferences, nodes, adjacency, data) {
+  dg  <- construct_schedule_from_preferences(preferences, nodes, adjacency, data)
+  fit <- calculate_fitness(dg, data)
+  list(F = fit$F, dg = dg, fit = fit)
 }
 
 build_verified_r_schedule <- function(data, seed = 20260915L, max_attempts = 200L,
@@ -1088,6 +1225,92 @@ build_detailed_verification <- function(schedule, data, verification) {
 }
 
 export_r_algorithm_result <- function(result, data, output_file, algorithm) {
+  # ── Export the algorithm's own result ────────────────────────────────────
+  # Repair is now integrated inside the algorithm loops (GA: evaluate_chromosome,
+  # ACO: ant construction loop).  By the time this function is called, the
+  # schedule in result$schedule is already the helper-built, repaired output.
+  # SA follows its own flow: no repair inside the loop; returns best DG result.
+  #
+  # This function formats, validates, and writes the Excel output.
+  # r_scheduler_export_helpers.R is the shared backend — no algorithm-specific
+  # logic lives here.
+  if (!requireNamespace("writexl", quietly = TRUE))
+    stop("writexl is required for Excel export.")
+  dir.create(dirname(output_file), showWarnings = FALSE, recursive = TRUE)
+
+  schedule     <- format_schedule_for_export(result$schedule, data)
+  verification <- validate_r_schedule(schedule, data)
+  n_expected   <- sum(vapply(data$offerings$meeting_patterns, length, integer(1)))
+  missing      <- max(0L, n_expected - nrow(schedule))
+
+  hard_rules <- c("coverage", "end_by_20", "department_room",
+                  "room_overlap", "faculty_overlap", "section_overlap",
+                  "faculty_lunch", "section_lunch",
+                  "section_straight_hours", "faculty_straight_hours",
+                  "merged_class_coherence", "merged_class_capacity",
+                  "split_meetings_different_days")
+  hard_viols   <- sum(verification$violations[verification$rule %in% hard_rules])
+  total_viols  <- sum(verification$violations)
+
+  metrics <- data.frame(
+    Metric = c(
+      "Schedule Source",
+      paste0(algorithm, " Search Time (seconds)"),
+      paste0("Final ", algorithm, " Fitness / Energy Score"),
+      "Total Scheduled Meetings",
+      "Total Unscheduled Meetings",
+      "Hard Constraint Violations",
+      "Total Constraint Violations"
+    ),
+    Value = c(
+      paste0(algorithm, " integrated decoder (construct + repair inside search loop)"),
+      result$time_sec,
+      result$fitness,
+      nrow(schedule),
+      missing,
+      hard_viols,
+      total_viols
+    ),
+    stringsAsFactors = FALSE
+  )
+
+  detail_cv <- tryCatch(
+    build_detailed_verification(schedule, data, verification),
+    error = function(e) {
+      message("  [detail CV] Could not build detailed sheet: ", conditionMessage(e))
+      data.frame(`Rule / Group`   = "Error building detail sheet",
+                 `Status / Value` = conditionMessage(e),
+                 check.names = FALSE)
+    }
+  )
+
+  sheets <- list(
+    Schedule                       = schedule,
+    Constraint_Verification        = verification,
+    Constraint_Verification_Detail = detail_cv,
+    Unscheduled                    = data.frame(unscheduled_meetings = missing),
+    Coverage                       = data.frame(
+      Status   = c("Scheduled", "Unscheduled"),
+      Meetings = c(nrow(schedule), missing)
+    )
+  )
+  sheets[[paste0(algorithm, "_Metrics")]] <- metrics
+
+  writexl::write_xlsx(sheets, output_file)
+  cat(sprintf(
+    "%s: time=%.1fs  fitness=%.2f  scheduled=%d/%d  hard_violations=%d  total_violations=%d\n",
+    algorithm, result$time_sec, result$fitness,
+    nrow(schedule), n_expected, hard_viols, total_viols
+  ))
+  invisible(verification)
+}
+
+export_r_algorithm_result_with_repair <- function(result, data, output_file, algorithm) {
+  # ── Explicit repair export ─────────────────────────────────────────────────
+  # Used by standalone repair scripts (10_direct_verified_schedule.R) or when
+  # the caller deliberately wants the constraint-first repair fallback.
+  # NOT called by ga_scheduler.R / aco_scheduler.R / sa_scheduler.R — those
+  # use export_r_algorithm_result() to preserve algorithm comparison integrity.
   if (!requireNamespace("writexl", quietly = TRUE))
     stop("writexl is required for Excel export.")
   dir.create(dirname(output_file), showWarnings = FALSE, recursive = TRUE)
@@ -1098,69 +1321,79 @@ export_r_algorithm_result <- function(result, data, output_file, algorithm) {
   missing      <- max(0L, n_expected - nrow(schedule))
 
   repair_time_sec <- 0
-  if (missing != 0L || any(verification$violations != 0L)) {
-    message(algorithm, " metaheuristic result was incomplete; applying validated constraint-first repair.")
+  schedule_source <- paste0(algorithm, " metaheuristic result")
+
+  hard_rules <- c("coverage", "end_by_20", "department_room",
+                  "room_overlap", "faculty_overlap", "section_overlap",
+                  "faculty_lunch", "section_lunch",
+                  "section_straight_hours", "faculty_straight_hours",
+                  "merged_class_coherence", "merged_class_capacity",
+                  "split_meetings_different_days")
+
+  if (missing != 0L || any(verification$violations[verification$rule %in% hard_rules] != 0L)) {
+    message(algorithm, " result incomplete — applying constraint-first repair.")
     repair_started  <- proc.time()
     schedule        <- format_schedule_for_export(build_verified_r_schedule(data), data)
     repair_time_sec <- as.numeric((proc.time() - repair_started)["elapsed"])
     verification    <- validate_r_schedule(schedule, data)
     missing         <- max(0L, n_expected - nrow(schedule))
-
-    hard_rules <- c("coverage", "end_by_20", "department_room",
-                    "room_overlap",
-                    "faculty_overlap", "section_overlap",
-                    "faculty_lunch", "section_lunch",
-                    "section_straight_hours", "faculty_straight_hours",
-                    "merged_class_coherence", "merged_class_capacity",
-                    "split_meetings_different_days")
-    hard_viols <- sum(verification$violations[verification$rule %in% hard_rules])
-    if (missing != 0L || hard_viols != 0L)
-      stop(algorithm,
-           " repair did not produce a full zero-hard-violation schedule; existing output was preserved.")
-    schedule_source <- "Constraint-first repair after incomplete metaheuristic result"
-  } else {
-    schedule_source <- "Metaheuristic result"
+    hard_viols_post <- sum(verification$violations[verification$rule %in% hard_rules])
+    if (missing != 0L || hard_viols_post != 0L)
+      stop(algorithm, " repair did not produce a complete zero-hard-violation schedule.")
+    schedule_source <- "Constraint-first repair (metaheuristic result was incomplete)"
   }
 
-  total_time_sec <- result$time_sec + repair_time_sec
+  hard_viols <- sum(verification$violations[verification$rule %in% hard_rules])
+
   metrics <- data.frame(
-    Metric = c("Schedule Source",
-               "Metaheuristic Time (seconds)",
-               "Constraint Repair Time (seconds)",
-               "Total Computation Time (seconds)",
-               paste0("Final ", algorithm, " Fitness / Energy Score"),
-               "Total Scheduled Meetings",
-               "Total Unscheduled Meetings",
-               "Hard Constraint Violations"),
-    Value = c(schedule_source, result$time_sec, repair_time_sec, total_time_sec,
-              result$fitness, nrow(schedule), missing, sum(verification$violations))
+    Metric = c(
+      "Schedule Source",
+      paste0(algorithm, " Search Time (seconds)"),
+      "Constraint Repair Time (seconds)",
+      "Total Computation Time (seconds)",
+      paste0("Final ", algorithm, " Fitness / Energy Score"),
+      "Total Scheduled Meetings",
+      "Total Unscheduled Meetings",
+      "Hard Constraint Violations"
+    ),
+    Value = c(
+      schedule_source,
+      result$time_sec,
+      repair_time_sec,
+      result$time_sec + repair_time_sec,
+      result$fitness,
+      nrow(schedule),
+      missing,
+      hard_viols
+    )
   )
 
   detail_cv <- tryCatch(
     build_detailed_verification(schedule, data, verification),
     error = function(e) {
       message("  [detail CV] Could not build detailed sheet: ", conditionMessage(e))
-      data.frame(`Rule / Group` = "Error building detail sheet",
+      data.frame(`Rule / Group`   = "Error building detail sheet",
                  `Status / Value` = conditionMessage(e),
                  check.names = FALSE)
     }
   )
 
   sheets <- list(
-    Schedule                      = schedule,
-    Constraint_Verification       = verification,
+    Schedule                       = schedule,
+    Constraint_Verification        = verification,
     Constraint_Verification_Detail = detail_cv,
-    Unscheduled                   = data.frame(unscheduled_meetings = missing),
-    Coverage                      = data.frame(
+    Unscheduled                    = data.frame(unscheduled_meetings = missing),
+    Coverage                       = data.frame(
       Status   = c("Scheduled", "Unscheduled"),
       Meetings = c(nrow(schedule), missing)
     )
   )
   sheets[[paste0(algorithm, "_Metrics")]] <- metrics
+
   writexl::write_xlsx(sheets, output_file)
   cat(sprintf(
-    "%s: total_time=%.3fs; fitness=%.6f; scheduled=%d; unscheduled=%d; violations=%d\n",
-    algorithm, total_time_sec, result$fitness,
+    "%s (with repair): total_time=%.3fs  fitness=%.6f  scheduled=%d  unscheduled=%d  violations=%d\n",
+    algorithm, result$time_sec + repair_time_sec, result$fitness,
     nrow(schedule), missing, sum(verification$violations)
   ))
   invisible(verification)

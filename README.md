@@ -36,11 +36,11 @@ Lahat ng parameters ay optional. Kung hindi i-set, gagamitin ang mga default val
 
 | Environment Variable | Paliwanag | Range | Default |
 |---|---|---|---|
-| `R_UPC_SA_STEPS` | Total cooling steps | integer ≥ 1 | `1` |
-| `R_UPC_SA_ITERATIONS` | Inner iterations per step | integer ≥ 1 | `2` |
+| `R_UPC_SA_STEPS` | Total cooling steps | integer ≥ 1 | `5` |
+| `R_UPC_SA_ITERATIONS` | Inner iterations per step | integer ≥ 1 | `20` |
 | `R_UPC_SA_ALPHA` | Cooling rate (mas malapit sa 1 = mas mabagal) | 0.0 – 1.0 | `0.985` |
 | `R_UPC_SA_T0_FACTOR` | Initial temperature multiplier | > 0 | `2` |
-| `R_UPC_SA_REHEAT` | Steps between reheats | integer ≥ 1 | `50` |
+| `R_UPC_SA_REHEAT` | Steps between reheats | integer ≥ 1 | `10` |
 | `R_UPC_MAX_NODES` | Candidate node cap | integer ≥ 1 | `2500` |
 | `R_UPC_MAX_ROOMS` | Rooms sampled per offering | integer ≥ 1 | `2` |
 | `R_UPC_MAX_STARTS` | Start slots per day | integer ≥ 1 | `2` |
@@ -167,13 +167,13 @@ $env:R_UPC_ACO_TAU0       = "1.0"    # initial pheromone level > 0      (default
 **Optional — i-adjust ang search budget at algorithm parameters:**
 ```powershell
 # Search budget
-$env:R_UPC_SA_STEPS       = "300"    # total cooling steps              (default: 1)
-$env:R_UPC_SA_ITERATIONS  = "100"    # inner iterations per step        (default: 2)
+$env:R_UPC_SA_STEPS       = "300"    # total cooling steps              (default: 20)
+$env:R_UPC_SA_ITERATIONS  = "100"    # inner iterations per step        (default: 50)
 $env:R_UPC_MAX_NODES      = "2500"   # candidate node cap               (default: 2500)
 # Algorithm parameters
 $env:R_UPC_SA_ALPHA       = "0.99"   # cooling rate 0–1 (near 1=slower) (default: 0.985)
 $env:R_UPC_SA_T0_FACTOR   = "3"      # initial temperature multiplier   (default: 2)
-$env:R_UPC_SA_REHEAT      = "50"     # steps between reheats            (default: 50)
+$env:R_UPC_SA_REHEAT      = "50"     # steps between reheats            (default: 10)
 & 'C:\Program Files\R\R-4.6.1\bin\Rscript.exe' --vanilla sa_scheduler.R
 ```
 

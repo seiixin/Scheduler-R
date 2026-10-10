@@ -1,12 +1,18 @@
 # R entrypoint for the Genetic Algorithm scheduler.
 # Run from any working directory; all project paths resolve beside this file.
 #
+# Architecture: each chromosome encodes one preferred placement node per
+# scheduling task (task-preference encoding).  construct_schedule_from_preferences()
+# builds a complete schedule from those preferences, resolving conflicts by
+# trying alternative nodes for the same task.  Fitness is scored on the
+# resulting schedule.  No post-hoc repair is applied.
+#
 # Environment variables (all optional):
 #   R_UPC_MAX_NODES         — candidate node cap               (default: 1050)
-#   R_UPC_MAX_ROOMS         — rooms sampled per offering        (default: 1)
-#   R_UPC_MAX_STARTS        — start slots per day               (default: 1)
-#   R_UPC_GA_POP            — population size                   (default: 8)
-#   R_UPC_GA_GENERATIONS    — number of generations             (default: 4)
+#   R_UPC_MAX_ROOMS         — rooms sampled per offering        (default: 2)
+#   R_UPC_MAX_STARTS        — start slots per day               (default: 2)
+#   R_UPC_GA_POP            — population size                   (default: 30)
+#   R_UPC_GA_GENERATIONS    — number of generations             (default: 50)
 #   R_UPC_GA_CROSSOVER      — crossover rate       0.0–1.0      (default: 0.88)
 #   R_UPC_GA_MUTATION       — mutation rate        0.0–1.0      (default: 0.18)
 #   R_UPC_GA_ELITISM        — elitism fraction     0.0–1.0      (default: 0.12)
@@ -50,17 +56,17 @@ env_numeric <- function(name, default, min_val = 0, max_val = Inf) {
 data  <- read_tupc_data(use_real_data = TRUE, use_synthetic_if_missing = FALSE)
 nodes <- build_candidate_nodes(
   data,
-  max_nodes              = env_positive_int("R_UPC_MAX_NODES",  1050L),
+  max_nodes              = env_positive_int("R_UPC_MAX_NODES",  2500L),
   sample_seed            = env_positive_int("R_UPC_GA_SEED",    20260915L),
-  max_rooms_per_offering = env_positive_int("R_UPC_MAX_ROOMS",  1L),
-  max_starts_per_day     = env_positive_int("R_UPC_MAX_STARTS", 1L)
+  max_rooms_per_offering = env_positive_int("R_UPC_MAX_ROOMS",  2L),
+  max_starts_per_day     = env_positive_int("R_UPC_MAX_STARTS", 2L)
 )
 adjacency <- build_adjacency_matrix(nodes, verbose = TRUE, use_sparse = FALSE)
 
 run_started <- proc.time()
 result <- run_GA(nodes, adjacency, data, params = list(
-  pop_size        = env_positive_int("R_UPC_GA_POP",         8L),
-  generations     = env_positive_int("R_UPC_GA_GENERATIONS", 4L),
+  pop_size        = env_positive_int("R_UPC_GA_POP",         30L),
+  generations     = env_positive_int("R_UPC_GA_GENERATIONS", 50L),
   crossover_rate  = env_numeric("R_UPC_GA_CROSSOVER",  0.88, 0, 1),
   mutation_rate   = env_numeric("R_UPC_GA_MUTATION",   0.18, 0, 1),
   elitism_frac    = env_numeric("R_UPC_GA_ELITISM",    0.12, 0, 1),
@@ -72,14 +78,8 @@ result$time_sec <- as.numeric((proc.time() - run_started)["elapsed"])
 cat(sprintf("GA finished in %.1f seconds. Final fitness: %.2f\n", result$time_sec, result$fitness))
 utils::flush.console()
 
-if (is.numeric(result$schedule)) {
-  dg_ga <- DynamicGraph$new(nodes, adjacency, data)
-  for (nid in as.integer(result$schedule)) {
-    if (dg_ga$active_remaining == 0L) break
-    dg_ga$select_node(nid)
-  }
-  result$schedule <- dg_ga$get_expanded_selected_nodes()
-}
+# result$schedule is already the expanded data frame from the best
+# helper-built schedule — no DynamicGraph reconstruction needed here.
 
 dir.create("outputs", showWarnings = FALSE, recursive = TRUE)
 cat("Exporting GA result to outputs/ga_schedule_formatted.xlsx ...\n")

@@ -1,12 +1,18 @@
 # R entrypoint for the Ant Colony Optimization scheduler.
 # Run from any working directory; all project paths resolve beside this file.
 #
+# Architecture: each ant builds a preference vector (one node_id per task)
+# by walking task-by-task using tau^alpha * eta^beta selection.
+# construct_schedule_from_preferences() builds a complete schedule from those
+# preferences, resolving conflicts with alternative nodes.  Pheromone is
+# deposited on the final helper-built placements.  No post-hoc repair applied.
+#
 # Environment variables (all optional):
 #   R_UPC_MAX_NODES         — candidate node cap               (default: 2500)
 #   R_UPC_MAX_ROOMS         — rooms sampled per offering        (default: 2)
 #   R_UPC_MAX_STARTS        — start slots per day               (default: 2)
-#   R_UPC_ACO_ANTS          — number of ants                    (default: 1)
-#   R_UPC_ACO_ITERATIONS    — number of iterations              (default: 1)
+#   R_UPC_ACO_ANTS          — number of ants per iteration      (default: 10)
+#   R_UPC_ACO_ITERATIONS    — number of iterations              (default: 20)
 #   R_UPC_ACO_ALPHA         — pheromone weight  > 0             (default: 1)
 #   R_UPC_ACO_BETA          — heuristic weight  > 0             (default: 2)
 #   R_UPC_ACO_RHO_LOCAL     — local evaporation rate  0.0–1.0   (default: 0.1)
@@ -15,7 +21,7 @@
 #   R_UPC_ACO_TAU0          — initial pheromone level > 0       (default: 1.0)
 #
 # PowerShell usage example:
-#   $env:R_UPC_ACO_ANTS       = "10"
+#   $env:R_UPC_ACO_ANTS       = "20"
 #   $env:R_UPC_ACO_ITERATIONS = "50"
 #   $env:R_UPC_ACO_ALPHA      = "1"
 #   $env:R_UPC_ACO_BETA       = "3"
