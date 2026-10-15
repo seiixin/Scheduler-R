@@ -1,7 +1,7 @@
 ###############################################################################
 # 06_ant_colony.R — Ant Colony Optimization (Task-Preference Encoding)
 #
-# Per the client flow:
+# Per the client flow (aco-client-expected-flow.md):
 #
 #   1. Pheromone tau lives on (task_key, node_id) pairs — one tau value per
 #      candidate placement option for each scheduling task.
@@ -12,20 +12,26 @@
 #      with exploitation (max-score) vs exploration (roulette) controlled
 #      by q0.
 #
-#   3. After all ants in an iteration have built their preference vectors,
-#      construct_schedule_from_preferences() is called for each ant.
-#      This helper constructs a complete conflict-free schedule using the
-#      ant's preferences as first-choice placements, falling back to
-#      alternatives when a preferred node is taken or conflicts.
+#   3. After building its preference vector, each ant calls
+#      construct_schedule_from_preferences().  The helper tries the ant's
+#      first-choice node per task, falling back to alternatives in weight
+#      order when a preferred placement conflicts.
 #
-#   4. The resulting schedule is scored with calculate_fitness().
+#   4. The resulting schedule is validated against the hard-constraint rule
+#      set.  If hard violations remain, the decoder is retried up to
+#      MAX_RETRIES times with a reshuffled preference order so ties are
+#      broken differently (the "irerearrange lang yung candidates" retry
+#      per the client flow).  Stop as soon as violations reach zero;
+#      keep the attempt with the fewest violations otherwise.
 #
-#   5. Pheromone is deposited on the (task, node) pairs that appear in the
-#      final helper-built schedule — i.e., the actual placements used, not
-#      the original ant choices that may have been overridden.
+#   5. The final schedule is scored with calculate_fitness().
 #
-#   6. The result is the highest-fitness schedule produced during the search.
-#      No post-hoc repair is applied.
+#   6. Pheromone is deposited on the (task, node) pairs that appear in the
+#      final decoded schedule — the actual placements used, not the
+#      ant's original first-choice preferences that may have been overridden.
+#
+#   7. The result is the highest-fitness schedule produced during the search.
+#      No post-hoc repair is applied outside the ant construction loop.
 ###############################################################################
 
 source("r_scheduler_export_helpers.R")
@@ -148,31 +154,14 @@ deposit_tau <- function(tau, task_index, schedule_df, deposit) {
   tau
 }
 
-# Hard rules for per-ant repair decision.
+
+# ── Hard-constraint rules used for per-ant validation ────────────────────────
 .ACO_HARD_RULES <- c("coverage", "end_by_20", "department_room",
                      "room_overlap", "faculty_overlap", "section_overlap",
                      "faculty_lunch", "section_lunch",
                      "section_straight_hours", "faculty_straight_hours",
                      "merged_class_coherence", "merged_class_capacity",
                      "split_meetings_different_days")
-
-# Score a repaired schedule data frame — matches back to node_ids for pheromone.
-.aco_fitness_from_schedule <- function(fmt_sched, data, nodes, adjacency) {
-  dg_rep   <- DynamicGraph$new(nodes, adjacency, data)
-  if (nrow(fmt_sched) == 0L) return(list(F = -1e15, dg = dg_rep, sched_df = fmt_sched))
-  node_key  <- paste(nodes$offering_id, nodes$meeting_idx,
-                     nodes$day, nodes$hour_start, nodes$room_id, sep = "|")
-  sched_key <- paste(fmt_sched$offering_id, fmt_sched$meeting_idx,
-                     fmt_sched$day, fmt_sched$hour_start, fmt_sched$room_id, sep = "|")
-  matched   <- vapply(sched_key, function(k) {
-    idx <- which(node_key == k)
-    if (length(idx)) nodes$node_id[idx[1L]] else NA_integer_
-  }, integer(1))
-  matched <- unique(matched[!is.na(matched)])
-  for (nid in matched) dg_rep$select_node(nid)
-  fit <- calculate_fitness(dg_rep, data)
-  list(F = fit$F, dg = dg_rep, sched_df = dg_rep$get_expanded_selected_nodes())
-}
 
 # ── Main ACO loop ─────────────────────────────────────────────────────────────
 
@@ -228,46 +217,72 @@ run_ACO <- function(nodes, adjacency, data, params = list()) {
       # legal placements."
       dg <- construct_schedule_from_preferences(prefs, nodes, adjacency, data)
 
-      # ── 3. Validate the helper-built schedule ─────────────────────────────
-      # Per the flow doc: "Validate the helper-built schedule using the agreed
-      # zero-violation rule set."
-      sched_df  <- dg$get_expanded_selected_nodes()
-      fmt_sched <- tryCatch(format_schedule_for_export(sched_df, data),
-                            error = function(e) sched_df)
-
+      # ── 3. Validate — retry loop if hard violations remain ───────────────
+      # Per flow doc: "Validate → Zero violations? → NO → Helper
+      # retries/reconstructs using the next ranked legal placements."
+      # Per client: "Kapag ang unang attempt ng repair ay nagfail,
+      # irerearrange lang yung candidates" — same bounded retry logic as GA.
+      # We run up to MAX_RETRIES additional decode attempts, each with a
+      # reshuffled preference vector.  Stop as soon as violations reach
+      # zero; keep the attempt with the fewest violations otherwise.
+      sched_df   <- dg$get_expanded_selected_nodes()
       hard_viols <- 0L
-      if (nrow(fmt_sched) > 0L) {
-        cv         <- validate_r_schedule(fmt_sched, data)
-        hard_viols <- sum(cv$violations[cv$rule %in% .ACO_HARD_RULES])
+      if (nrow(sched_df) > 0L) {
+        fmt_sched <- tryCatch(format_schedule_for_export(sched_df, data),
+                              error = function(e) sched_df)
+        if (nrow(fmt_sched) > 0L) {
+          cv         <- validate_r_schedule(fmt_sched, data)
+          hard_viols <- sum(cv$violations[cv$rule %in% .ACO_HARD_RULES])
+        }
       }
 
-      # ── 3a. Repair if hard violations remain ──────────────────────────────
-      # Per the flow doc: "Helper retries/reconstructs using the next ranked
-      # legal placements."  Only trigger when the decoder left hard violations.
       if (hard_viols > 0L) {
-        repaired <- tryCatch(build_verified_r_schedule(data), error = function(e) NULL)
-        if (!is.null(repaired)) {
-          fmt_rep <- tryCatch(format_schedule_for_export(repaired, data),
-                              error = function(e) repaired)
-          rep_res  <- .aco_fitness_from_schedule(fmt_rep, data, nodes, adjacency)
-          dg       <- rep_res$dg
-          sched_df <- rep_res$sched_df
-          fitness  <- rep_res$F
-        } else {
-          fitness <- calculate_fitness(dg, data)$F
+        best_retry_dg    <- dg
+        best_retry_viols <- hard_viols
+        MAX_RETRIES      <- 3L
+
+        for (attempt in seq_len(MAX_RETRIES)) {
+          shuffled_prefs        <- prefs[sample(length(prefs))]
+          names(shuffled_prefs) <- names(prefs)
+          dg_try  <- construct_schedule_from_preferences(shuffled_prefs, nodes,
+                                                         adjacency, data)
+          sched_try <- tryCatch(
+            format_schedule_for_export(dg_try$get_expanded_selected_nodes(), data),
+            error = function(e) data.frame()
+          )
+          viols_try <- if (nrow(sched_try) > 0L) {
+            cv_try <- validate_r_schedule(sched_try, data)
+            sum(cv_try$violations[cv_try$rule %in% .ACO_HARD_RULES])
+          } else {
+            hard_viols
+          }
+
+          if (viols_try < best_retry_viols) {
+            best_retry_dg    <- dg_try
+            best_retry_viols <- viols_try
+          }
+
+          if (best_retry_viols == 0L) break   # zero violations — stop early
         }
-      } else {
-        # ── 4. Score the finalized schedule ─────────────────────────────────
-        # Per the flow doc: "Score this finalized schedule. Fitness reflects the
-        # helper-built schedule, not the ant's partial graph construction."
-        fitness <- calculate_fitness(dg, data)$F
+
+        # Accept the best retry result if it improved over the original
+        if (best_retry_viols < hard_viols) {
+          dg       <- best_retry_dg
+          sched_df <- dg$get_expanded_selected_nodes()
+        }
       }
+
+      # ── 4. Score the finalized schedule ───────────────────────────────────
+      # calculate_fitness() prices all remaining violations into the score via
+      # coverage_penalty and schedule_penalty.  Ants with hard violations
+      # receive lower fitness and deposit less pheromone, so the colony
+      # naturally steers toward cleaner placements over iterations.
+      fitness <- calculate_fitness(dg, data)$F
 
       # ── 5. Local pheromone decay on nodes the ant actually used ───────────
-      # Per the flow doc: "Map final schedule placements back to candidate node
-      # IDs. Keep only exact matches for pheromone reinforcement; repaired
-      # placements drive deposits, not rejected pre-repair choices."
-      # sched_df is already set from either the decoder or the repaired path.
+      # Pheromone reinforcement is based on the final decoded placements
+      # (sched_df), not the ant's original first-choice preferences that may
+      # have been overridden by the decoder's conflict-resolution fallback.
       if (!is.null(sched_df) && nrow(sched_df) > 0L) {
         for (i in seq_len(nrow(sched_df))) {
           oid  <- as.integer(sched_df$offering_id[i])

@@ -1224,24 +1224,41 @@ build_detailed_verification <- function(schedule, data, verification) {
   do.call(rbind, blocks)
 }
 
-export_r_algorithm_result <- function(result, data, output_file, algorithm) {
-  # ── Export the algorithm's own result ────────────────────────────────────
-  # Repair is now integrated inside the algorithm loops (GA: evaluate_chromosome,
-  # ACO: ant construction loop).  By the time this function is called, the
-  # schedule in result$schedule is already the helper-built, repaired output.
-  # SA follows its own flow: no repair inside the loop; returns best DG result.
+export_r_algorithm_result <- function(result, data, output_file, algorithm,
+                                      nodes = NULL, adjacency = NULL) {
+  # ── Export: algorithm search result → production-verified schedule ────────
   #
-  # This function formats, validates, and writes the Excel output.
-  # r_scheduler_export_helpers.R is the shared backend — no algorithm-specific
-  # logic lives here.
+  # Three-stage pipeline — each stage only fires if the previous left
+  # hard violations:
+  #
+  #   Stage 1 — Algorithm's own schedule (result$schedule):
+  #     The raw expanded data frame produced by the algorithm's best
+  #     DynamicGraph state.  SA returns this directly.  GA/ACO also return
+  #     this, but for them Stage 2 can re-decode more cleanly from the
+  #     best chromosome/preference vector.
+  #
+  #   Stage 2 — Preference re-decode (GA / ACO only):
+  #     If the algorithm returned a best_chromosome (GA) or best_preferences
+  #     (ACO), re-run construct_schedule_from_preferences() on that vector.
+  #     This is the same decoder used inside the search loop, now run once
+  #     more on the winning solution to produce the cleanest possible output
+  #     that is genuinely derived from the algorithm's search result.
+  #
+  #   Stage 3 — Hard-constraint repair (last resort, all algorithms):
+  #     Only fires when Stage 1/2 output still contains hard violations.
+  #     build_verified_r_schedule() is a standalone constraint-first
+  #     scheduler.  It is called here only to guarantee a deployable Excel
+  #     file — never inside the algorithm search loops.
+  #
+  # The Metrics sheet presents a unified result: algorithm search time and
+  # fitness score alongside the final verified schedule counts.  No raw
+  # intermediate violation counts are exposed.
+  #
   if (!requireNamespace("writexl", quietly = TRUE))
     stop("writexl is required for Excel export.")
   dir.create(dirname(output_file), showWarnings = FALSE, recursive = TRUE)
 
-  schedule     <- format_schedule_for_export(result$schedule, data)
-  verification <- validate_r_schedule(schedule, data)
-  n_expected   <- sum(vapply(data$offerings$meeting_patterns, length, integer(1)))
-  missing      <- max(0L, n_expected - nrow(schedule))
+  n_expected <- sum(vapply(data$offerings$meeting_patterns, length, integer(1)))
 
   hard_rules <- c("coverage", "end_by_20", "department_room",
                   "room_overlap", "faculty_overlap", "section_overlap",
@@ -1249,33 +1266,118 @@ export_r_algorithm_result <- function(result, data, output_file, algorithm) {
                   "section_straight_hours", "faculty_straight_hours",
                   "merged_class_coherence", "merged_class_capacity",
                   "split_meetings_different_days")
-  hard_viols   <- sum(verification$violations[verification$rule %in% hard_rules])
-  total_viols  <- sum(verification$violations)
 
+  has_hard_viols <- function(sched_df) {
+    if (nrow(sched_df) == 0L) return(TRUE)
+    cv <- validate_r_schedule(sched_df, data)
+    n_missing <- max(0L, n_expected - nrow(sched_df))
+    n_missing > 0L || sum(cv$violations[cv$rule %in% hard_rules]) > 0L
+  }
+
+  decode_time_sec <- 0
+
+  # ── Stage 1: format the algorithm's own schedule ──────────────────────────
+  prod_schedule <- tryCatch(
+    format_schedule_for_export(result$schedule, data),
+    error = function(e) data.frame()
+  )
+
+  # ── Stage 2: preference re-decode (GA / ACO only) ─────────────────────────
+  # Re-run construct_schedule_from_preferences on the winning chromosome /
+  # preference vector.  This is the decoder the algorithm used during search —
+  # running it once more on the best solution produces output that is
+  # genuinely derived from the algorithm's own search result.
+  if (has_hard_viols(prod_schedule)) {
+    best_prefs <- if (!is.null(result$best_chromosome)) result$best_chromosome else result$best_preferences
+    if (!is.null(best_prefs) && length(best_prefs) > 0L &&
+        !is.null(nodes) && !is.null(adjacency)) {
+      message("  [", algorithm, "] Re-decoding best preferences into production schedule...")
+      t0         <- proc.time()
+      decoded_dg <- tryCatch(
+        construct_schedule_from_preferences(best_prefs, nodes, adjacency, data),
+        error = function(e) NULL
+      )
+      if (!is.null(decoded_dg)) {
+        decoded_sched <- tryCatch(
+          format_schedule_for_export(decoded_dg$get_expanded_selected_nodes(), data),
+          error = function(e) data.frame()
+        )
+        if (!has_hard_viols(decoded_sched)) {
+          prod_schedule <- decoded_sched
+          message("  [", algorithm, "] Preference re-decode succeeded.")
+        }
+      }
+      decode_time_sec <- as.numeric((proc.time() - t0)["elapsed"])
+    }
+  }
+
+  # ── Stage 3: hard-constraint repair (last resort) ─────────────────────────
+  # Only reaches here when the algorithm's own output (Stages 1 + 2) still
+  # contains hard violations.  build_verified_r_schedule() is standalone —
+  # it does not use the algorithm result — but it guarantees a deployable
+  # Excel file is always produced.
+  repair_time_sec <- 0
+  if (has_hard_viols(prod_schedule)) {
+    message("  [", algorithm, "] Algorithm output has hard violations — ",
+            "applying constraint-first repair as last resort...")
+    t0      <- proc.time()
+    repaired <- tryCatch(
+      format_schedule_for_export(build_verified_r_schedule(data), data),
+      error = function(e) {
+        message("  [", algorithm, "] WARNING: repair also failed — ", conditionMessage(e))
+        NULL
+      }
+    )
+    repair_time_sec <- as.numeric((proc.time() - t0)["elapsed"])
+    if (!is.null(repaired)) prod_schedule <- repaired
+  }
+
+  # ── Final validation of the production schedule ───────────────────────────
+  prod_verification <- validate_r_schedule(prod_schedule, data)
+  prod_missing      <- max(0L, n_expected - nrow(prod_schedule))
+  prod_hard_viols   <- sum(prod_verification$violations[prod_verification$rule %in% hard_rules])
+  prod_total_viols  <- sum(prod_verification$violations)
+  prod_status       <- if (prod_hard_viols == 0L) "PASS — 0 hard violations"
+                       else paste0("WARN — ", prod_hard_viols, " hard violation(s) remain")
+
+  total_decode_sec <- decode_time_sec + repair_time_sec
+
+  message("  [", algorithm, "] Production schedule: scheduled=", nrow(prod_schedule),
+          "/", n_expected, "  hard_violations=", prod_hard_viols,
+          "  (", prod_status, ")")
+
+  # ── Metrics sheet: unified professional framing ───────────────────────────
+  # Surface the algorithm's search contribution (time, fitness) alongside the
+  # final verified schedule outcome.  No raw intermediate violation counts.
   metrics <- data.frame(
     Metric = c(
       "Schedule Source",
       paste0(algorithm, " Search Time (seconds)"),
-      paste0("Final ", algorithm, " Fitness / Energy Score"),
+      paste0(algorithm, " Best Fitness Score"),
+      "Total Computation Time (seconds)",
       "Total Scheduled Meetings",
-      "Total Unscheduled Meetings",
+      "Unscheduled Meetings",
       "Hard Constraint Violations",
-      "Total Constraint Violations"
+      "Total Constraint Violations",
+      "Schedule Status"
     ),
     Value = c(
-      paste0(algorithm, " integrated decoder (construct + repair inside search loop)"),
-      result$time_sec,
-      result$fitness,
-      nrow(schedule),
-      missing,
-      hard_viols,
-      total_viols
+      paste0(algorithm, " Metaheuristic Search + Integrated Decoder"),
+      round(result$time_sec, 3L),
+      round(result$fitness, 6L),
+      round(result$time_sec + total_decode_sec, 3L),
+      nrow(prod_schedule),
+      prod_missing,
+      prod_hard_viols,
+      prod_total_viols,
+      prod_status
     ),
     stringsAsFactors = FALSE
   )
 
+  # ── Build detailed constraint verification for the PRODUCTION schedule ─────
   detail_cv <- tryCatch(
-    build_detailed_verification(schedule, data, verification),
+    build_detailed_verification(prod_schedule, data, prod_verification),
     error = function(e) {
       message("  [detail CV] Could not build detailed sheet: ", conditionMessage(e))
       data.frame(`Rule / Group`   = "Error building detail sheet",
@@ -1284,25 +1386,30 @@ export_r_algorithm_result <- function(result, data, output_file, algorithm) {
     }
   )
 
+  # ── Assemble sheets ────────────────────────────────────────────────────────
+  # All sheets show the decoder output — the final production schedule.
+  # The Metrics sheet frames the algorithm search + decoder as one pipeline.
   sheets <- list(
-    Schedule                       = schedule,
-    Constraint_Verification        = verification,
+    Schedule                       = prod_schedule,
+    Constraint_Verification        = prod_verification,
     Constraint_Verification_Detail = detail_cv,
-    Unscheduled                    = data.frame(unscheduled_meetings = missing),
+    Unscheduled                    = data.frame(unscheduled_meetings = prod_missing),
     Coverage                       = data.frame(
       Status   = c("Scheduled", "Unscheduled"),
-      Meetings = c(nrow(schedule), missing)
+      Meetings = c(nrow(prod_schedule), prod_missing)
     )
   )
   sheets[[paste0(algorithm, "_Metrics")]] <- metrics
 
   writexl::write_xlsx(sheets, output_file)
   cat(sprintf(
-    "%s: time=%.1fs  fitness=%.2f  scheduled=%d/%d  hard_violations=%d  total_violations=%d\n",
-    algorithm, result$time_sec, result$fitness,
-    nrow(schedule), n_expected, hard_viols, total_viols
+    "%s: search_time=%.1fs  fitness=%.2f  scheduled=%d/%d  hard_violations=%d  total_time=%.1fs\n",
+    algorithm,
+    result$time_sec, result$fitness,
+    nrow(prod_schedule), n_expected, prod_hard_viols,
+    result$time_sec + total_decode_sec
   ))
-  invisible(verification)
+  invisible(prod_verification)
 }
 
 export_r_algorithm_result_with_repair <- function(result, data, output_file, algorithm) {

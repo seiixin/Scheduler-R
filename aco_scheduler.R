@@ -80,5 +80,6 @@ dir.create("outputs", showWarnings = FALSE, recursive = TRUE)
 export_r_algorithm_result(
   result, data,
   file.path("outputs", "aco_schedule_formatted.xlsx"),
-  "ACO"
+  "ACO",
+  nodes = nodes, adjacency = adjacency
 )

@@ -87,7 +87,8 @@ utils::flush.console()
 export_r_algorithm_result(
   result, data,
   file.path("outputs", "ga_schedule_formatted.xlsx"),
-  "GA"
+  "GA",
+  nodes = nodes, adjacency = adjacency
 )
 cat("Done. File written to outputs/ga_schedule_formatted.xlsx\n")
 utils::flush.console()

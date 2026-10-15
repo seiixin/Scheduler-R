@@ -75,5 +75,6 @@ dir.create("outputs", showWarnings = FALSE, recursive = TRUE)
 export_r_algorithm_result(
   result, data,
   file.path("outputs", "sa_schedule_formatted.xlsx"),
-  "SA"
+  "SA",
+  nodes = nodes, adjacency = adjacency
 )

@@ -280,6 +280,48 @@ oo nga po mahirap kung ourong meta heuristic ang gagamitin. yun din ang nabanggi
 bale bago ka siguro gumawa ng code, bigyan mo muna ako ng flowchart kung paano aandar ang algorithm bago mo siya gawan ng code
 sige po
 
+client:
+*shows the draft flow*
+
+me:
+Bale ipapasok lang yung helper sa loob ng SA para hindi siya makita sa dulo ng workflow po kung ganon?
+
+client:
+Yes. Bale yung helper na ang tagagawa ng schedule. Bale si SA ang taga decide kung accept or reject ang sched
+
+Yung sa GA, yung taga gawa ng sched ay yung helper na rin. Ang iniisip ko lang ay paano yung magiging process ng crossover at mutation
+
+me:
+ang naiisip ko pong flow para masunod yung gusto niyong structure, ang helper muna ang gagawa ng initial population ng schedules, tapos ang crossover/mutation ang magpapalit-palit ng ilang pwesto (tulad ng sections o rooms) bago i-evaluate ng fitness at i-accept/reject ni GA. Okay po ba sa inyo ito?
+
+client:
+
+Ok din sa akin ito. Bale linawin ko lang. Paano magpapalit palit ng pwesto?
+
+me:
+Kukuha ng dalawang magkaibang buong iskedyul na ginawa ng helper, tapos hahatiin o pagpapalitin ang kalahati ng mga to, kunyare ang unang kalahati ng schedule ng Room A ay ililipat sa Room B, at ang sa Room B naman ay mapupunta sa Room A, para makabuo ng bagong combination.
+
+client:
+Ang nasa isip  ko ay yung candidate nodes ang hahatiin sa crossover na gagamitin para sa paggawa ng bagong sched ng helper. Ok kaya yun?
+
+Kasi kung sched ng rooms, wala siya gaanong effect sa fitness score.
+
+
+me:
+Opo mas ok rin yun
+
+client:
+Yung sa ACO naman, yung probability na ang candidates ay mapili ay nakabase sa pheromone^alpha times weight^beta. Then tsaka gagawa si helper ng schedule. Kapag nakabuo na ng schedule, madadagdagan ang pheromone count ng mga nodes na napili.
+Tama ba? Kapag ang unang attempt ng repair ay nagfail, irerearrange lang yung candidates? Hindi na kukuha ulit ng panibaging candidates per offering?
+
+me:
+
+sige po
+
+opo kapag nag-fail ang unang attempt ng repair, ang gagawin na lang po ay irerearrange o muling aayusin ang pagkakasunod-sunod ng mga candidates base sa bagong lakas ng ACO, at hindi na po kukuha ng panibagong set ng raw data mula sa simula.
+
+client:
+
 ---------------------------------------
 eto yung pinag usapan namin na flow:
 
